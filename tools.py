@@ -16,13 +16,11 @@ class Tool:
     run: Any
 
     def to_openai_spec(self) -> Dict[str, Any]:
+        # For OpenAI v0.28.x, functions are passed directly without the "function" wrapper
         return {
-            "type": "function",
-            "function": {
-                "name": self.name,
-                "description": self.description,
-                "parameters": self.schema,
-            },
+            "name": self.name,
+            "description": self.description,
+            "parameters": self.schema,
         }
 
 def register(tool: Tool):

@@ -75,16 +75,20 @@ def run_agent(task: str):
             
             # Check for function call
             if 'function_call' in msg and msg['function_call']:
-                memory.add("assistant", content=None)  # content omitted when using function_call
+                # Add assistant message with function call
+                assistant_msg = {"role": "assistant", "function_call": msg['function_call']}
+                memory.messages.append(assistant_msg)
                 name = msg['function_call']['name']
                 args = msg['function_call']['arguments']
                 print(f"Calling tool: {name}")
                 result = call_tool(name, args)
-                memory.add(
-                    "tool",
-                    content=result,
-                    name=name,
-                )
+                # For OpenAI v0.28.x, use "function" role instead of "tool" 
+                function_response = {
+                    "role": "function",
+                    "name": name,
+                    "content": result
+                }
+                memory.messages.append(function_response)
                 continue  # loop again with tool results in memory
 
             # Otherwise, we got a final answer
