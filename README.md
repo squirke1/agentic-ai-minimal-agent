@@ -20,108 +20,121 @@ cp .env.example .env
 
 # Agentic AI — Minimal Agent
 
-A tiny reference implementation of an "agent" powered by an LLM with
-- function/tool calling
-- a planner–executor loop with a step limit
-- a simple memory buffer
-- **long-term vector memory with semantic search**
-- file-based retrieval (RAG-lite)
+A minimal reference implementation of an AI agent with the following capabilities:
+- Function/tool calling
+- Planner-executor loop with step limits
+- Short and long-term memory
+- Vector-based memory with semantic search
+- Document retrieval (RAG)
 
-## Quickstart
+## Getting Started
 
-### 1) Python & deps
-- Python 3.10+
-- `pip install -r requirements.txt`
+### Setup
+- Python 3.9+
+- Install dependencies: `pip install -r requirements.txt`
 
-### 2) Configure
-Copy `.env.example` to `.env` and set your keys:
+### Configuration
+Copy `.env.example` to `.env` and add your OpenAI API key:
 ```bash
 cp .env.example .env
 ```
 
-### 3) Run
+### Running the Agent
 
 ```bash
-python main.py --task "Plan a 2-hour study session on agentic AI using the docs and calculate the total minutes spent on each topic."
+python main.py --task "Calculate compound interest for $1000 at 5% for 10 years"
 ```
 
-**Note**: You need a valid OpenAI API key and billing setup. If you get quota errors, you can test the system without API calls:
-
+For testing without API calls:
 ```bash
-# Test all components without API calls
-python test_agent.py
-
-# See a complete demo workflow
-python demo_agent.py
+python test_agent.py    # Test components
+python demo_agent.py    # Full demo workflow
 ```
 
-### 4) Optional: Add reference docs
+### Adding Documents
+Place Markdown files in `./docs/` for the agent to search and reference.
 
-Put Markdown files in `./docs`. The `retrieve` tool will chunk & search them.
+## Architecture
 
-## Design
+The agent follows a planner-executor pattern where the LLM decides which tools to call and the runtime executes them. Available tools include calculator, document retrieval, memory management, and web search.
 
-* **Planner–executor**: the LLM decides when to call tools; the runtime executes and returns results.
-* **Tools**: Calculator, Retrieve (RAG-lite over `./docs`), Memory Management, and a minimal Web Search stub you can wire to your preferred API.
-* **Short-term Memory**: conversation + tool results are fed back to the LLM each step.
-* **Long-term Memory**: persistent vector database stores experiences, facts, and learnings across sessions.
+Memory operates at two levels:
+- **Short-term**: Conversation context within a session
+- **Long-term**: Persistent vector storage across sessions using ChromaDB
 
-## New: Long-Term Memory Features
+## Memory System
 
-The agent now includes persistent memory capabilities:
+The agent maintains different types of memories:
+- Experience: Task results and learned patterns
+- Fact: Important information
+- Skill: Acquired capabilities
+- Conversation: Notable exchanges
 
-### Memory Types
-- **Experience**: Task results and learned patterns
-- **Fact**: Important information to remember
-- **Skill**: Acquired capabilities and techniques
-- **Conversation**: Important dialogue exchanges
+Memory operations include storing new information, searching for relevant past experiences, and retrieving recent memories. The system uses vector embeddings for semantic similarity matching.
 
-### Memory Tools
-- `store_memory(content, type, importance)`: Save information for future use
-- `search_memory(query, type, n_results)`: Find relevant past experiences
-- `get_recent_memories(n_results, type)`: Get recent memories
-- `memory_stats()`: View memory database statistics
+## Safety Features
 
-### Automatic Memory Management
-- Agent automatically searches for relevant past experiences before starting tasks
-- Successful task completions are stored for future reference
-- Failed attempts are logged with lower importance scores
-- Vector similarity search finds semantically related memories
+- Step limit (default 6) prevents infinite loops
+- Input validation using Pydantic
+- Memory importance scoring
+- Error handling and recovery
 
-### Memory Database
-- Uses ChromaDB for vector storage
-- Sentence-transformers for embeddings
-- Persistent storage in `./memory_db/`
-- Semantic similarity search across all stored memories
+## Configuration
 
-## Safety & Limits
+Set the `MODEL` environment variable to use different OpenAI-compatible models. The system requires function calling support.
 
-* Hard step cap (default 6) prevents infinite loops.
-* Tool arguments validated with `pydantic`.
-* Memory importance scoring prevents information overload.
+## Extensions
 
-## Swap-in Models
+Some potential improvements:
+- Connect web_search to a real API (SerpAPI, Tavily, etc.)
+- Add task decomposition capabilities
+- Implement logging and observability
+- Add input/output validation and guardrails
 
-Set `MODEL` in `.env`. Tested with OpenAI-compatible chat completions that support tool/function calling.
+## License
 
-### 4) Optional: Add reference docs
+MIT
 
-Put Markdown files in `./docs`. The `retrieve` tool will chunk & search them.
+## Architecture
 
-## Design
+The agent follows a planner-executor pattern where the LLM decides which tools to call and the runtime executes them. Available tools include calculator, document retrieval, memory management, and web search.
 
-* **Planner–executor**: the LLM decides when to call tools; the runtime executes and returns results.
-* **Tools**: Calculator, Retrieve (RAG-lite over `./docs`), and a minimal Web Search stub you can wire to your preferred API.
-* **Memory**: conversation + tool results are fed back to the LLM each step.
+Memory operates at two levels:
+- **Short-term**: Conversation context within a session
+- **Long-term**: Persistent vector storage across sessions using ChromaDB
 
-## Safety & Limits
+## Memory System
 
-* Hard step cap (default 6) prevents infinite loops.
-* Tool arguments validated with `pydantic`.
+The agent maintains different types of memories:
+- Experience: Task results and learned patterns
+- Fact: Important information
+- Skill: Acquired capabilities
+- Conversation: Notable exchanges
 
-## Swap-in Models
+Memory operations include storing new information, searching for relevant past experiences, and retrieving recent memories. The system uses vector embeddings for semantic similarity matching.
 
-Set `MODEL` in `.env`. Tested with OpenAI-compatible chat completions that support tool/function calling.
+## Safety Features
+
+- Step limit (default 6) prevents infinite loops
+- Input validation using Pydantic
+- Memory importance scoring
+- Error handling and recovery
+
+## Configuration
+
+Set the `MODEL` environment variable to use different OpenAI-compatible models. The system requires function calling support.
+
+## Extensions
+
+Some potential improvements:
+- Connect web_search to a real API (SerpAPI, Tavily, etc.)
+- Add task decomposition capabilities
+- Implement logging and observability
+- Add input/output validation and guardrails
+
+## License
+
+MIT
 
 ## License
 

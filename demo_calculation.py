@@ -9,7 +9,7 @@ import json
 
 def solve_calculation_task():
     task = "Calculate 15 * 23 and tell me what this number represents in terms of days"
-    print(f"🤖 Agent Task: {task}\n")
+    print(f"Agent Task: {task}\n")
     
     # Step 1: Search memory for relevant experience
     print("Step 1: Searching long-term memory...")
@@ -48,28 +48,27 @@ def solve_calculation_task():
         if years_data.get('ok'):
             print(f"   • {years_data['result']:.2f} years")
     
-    # Step 4: Generate comprehensive response
+    # Step 4: Generate final response
     print("\nStep 4: Generating final response...")
     
     response = f"""
-**Calculation Result: 15 × 23 = {result}**
+Calculation Result: 15 × 23 = {result}
 
-**What {result} days represents:**
+What {result} days represents:
 
-🗓️ **Time Periods:**
-• **{weeks_data['result']:.1f} weeks** - About {int(weeks_data['result'])} full weeks
-• **{months_data['result']:.1f} months** - Roughly {int(months_data['result']+0.5)} months  
-• **{years_data['result']:.2f} years** - Just over 1 year
+Time Periods:
+- {weeks_data['result']:.1f} weeks (about {int(weeks_data['result'])} full weeks)
+- {months_data['result']:.1f} months (roughly {int(months_data['result']+0.5)} months)
+- {years_data['result']:.2f} years (just over 1 year)
 
-📅 **Practical Context:**
-• This is approximately **11 months and 2 weeks**
-• If you started today, you'd reach this date around **mid-September next year**
-• It's about **{int((result/365.25)*100)}% of a full year**
+Practical Context:
+- Approximately 11 months and 2 weeks
+- About {int((result/365.25)*100)}% of a full year
 
-💡 **Real-world examples:**
-• Duration of a typical academic year
-• Length of many professional training programs
-• Time for a major life transition or goal achievement
+Real-world examples:
+- Duration of a typical academic year
+- Length of many professional training programs
+- Time for a major life transition or goal achievement
     """
     
     print("\n=== FINAL ANSWER ===")
@@ -85,7 +84,7 @@ def solve_calculation_task():
             importance=0.7,
             metadata={"calculation": True, "time_conversion": True}
         )
-        print(f"   ✅ Stored as memory: {memory_id}")
+        print(f"   Stored as memory: {memory_id}")
 
 if __name__ == "__main__":
     solve_calculation_task()

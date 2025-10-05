@@ -19,7 +19,7 @@ def mock_run_agent(task: str):
     # Initialize long-term memory
     vector_memory = get_vector_memory()
     if vector_memory:
-        print(f"✅ Long-term memory initialized with {vector_memory.collection.count()} existing memories")
+        print(f"Long-term memory initialized with {vector_memory.collection.count()} existing memories")
         
         # Test memory operations
         print("\n--- Testing Memory Operations ---")
@@ -30,15 +30,15 @@ def mock_run_agent(task: str):
             memory_type="fact",
             importance=0.8
         )
-        print(f"✅ Stored test memory: {memory_id}")
+        print(f"Stored test memory: {memory_id}")
         
         # Search for memories
         results = vector_memory.search_memories("AI agents", n_results=2)
-        print(f"✅ Found {len(results)} memories about AI agents")
+        print(f"Found {len(results)} memories about AI agents")
         
         # Get stats
         stats = vector_memory.get_memory_stats()
-        print(f"✅ Memory stats: {stats}")
+        print(f"Memory stats: {stats}")
         
     else:
         print("❌ Long-term memory not available")
@@ -46,20 +46,20 @@ def mock_run_agent(task: str):
     # Test tools
     print("\n--- Testing Tools ---")
     tools = all_openai_specs()
-    print(f"✅ Loaded {len(tools)} tools:")
+    print(f"Loaded {len(tools)} tools:")
     for tool in tools:
-        print(f"   - {tool['function']['name']}: {tool['function']['description']}")
+        print(f"   - {tool['name']}: {tool['description']}")
     
     # Test calculator
     calc_result = call_tool("calculator", '{"expression": "2 + 2 * 3"}')
-    print(f"✅ Calculator test: {calc_result}")
+    print(f"Calculator test: {calc_result}")
     
     # Test memory tools if available
     if vector_memory:
         memory_result = call_tool("memory_stats", '{}')
-        print(f"✅ Memory stats tool: {memory_result}")
+        print(f"Memory stats tool: {memory_result}")
     
-    print("\n🎉 All tests completed successfully!")
+    print("\nAll tests completed successfully.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -13,8 +13,8 @@ from tools import all_openai_specs, call_tool, get_vector_memory
 def demo_agent_workflow():
     """Demonstrate the complete agent workflow"""
     
-    print("🤖 Agentic AI Agent Demo")
-    print("=" * 50)
+    print("Agentic AI Agent Demo")
+    print("=" * 40)
     
     # Task
     task = "Help me understand how long-term memory works in AI agents"
@@ -26,9 +26,9 @@ def demo_agent_workflow():
     memory = Memory()
     tools = all_openai_specs()
     
-    print(f"✅ Long-term memory: {vector_memory.collection.count() if vector_memory else 0} existing memories")
-    print(f"✅ Available tools: {len(tools)}")
-    print(f"✅ Short-term memory initialized\n")
+    print(f"Long-term memory: {vector_memory.collection.count() if vector_memory else 0} existing memories")
+    print(f"Available tools: {len(tools)}")
+    print(f"Short-term memory initialized\n")
     
     # Simulate agent steps
     print("2. Agent Planning & Execution...")
@@ -75,7 +75,7 @@ The system automatically stores successful task completions and can retrieve
 relevant past experiences when facing new challenges.
     """
     
-    print("✅ Response generated!")
+    print("Response generated!")
     
     # Step 5: Store the experience
     print("\nStep 5: Storing experience in long-term memory...")
@@ -87,25 +87,25 @@ relevant past experiences when facing new challenges.
             importance=0.8,
             metadata={"task_type": "explanation", "topic": "long-term memory"}
         )
-        print(f"✅ Stored experience: {memory_id}")
+        print(f"Stored experience: {memory_id}")
     
     # Final stats
     print("\n3. Final Statistics...")
     if vector_memory:
         stats = vector_memory.get_memory_stats()
-        print(f"✅ Total memories: {stats['total_memories']}")
-        print(f"✅ Memory types: {stats['memory_types']}")
-        print(f"✅ Average importance: {stats['average_importance']}")
+        print(f"Total memories: {stats['total_memories']}")
+        print(f"Memory types: {stats['memory_types']}")
+        print(f"Average importance: {stats['average_importance']}")
     
-    print("\n" + "=" * 50)
-    print("🎉 Demo completed! The agent has successfully:")
-    print("   • Searched existing memories for context")
-    print("   • Retrieved relevant documentation") 
-    print("   • Performed calculations")
-    print("   • Generated a comprehensive response")
-    print("   • Stored the experience for future reference")
+    print("\n" + "=" * 40)
+    print("Demo completed. The agent:")
+    print("   - Searched existing memories for context")
+    print("   - Retrieved relevant documentation") 
+    print("   - Performed calculations")
+    print("   - Generated a detailed response")
+    print("   - Stored the experience for future reference")
     
-    print(f"\n📄 Final Response:\n{response}")
+    print(f"\nFinal Response:\n{response}")
 
 if __name__ == "__main__":
     demo_agent_workflow()
