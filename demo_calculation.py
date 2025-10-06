@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
+"""Interactive calculation demonstration.
 
-"""
-Interactive demo showing the agent solving your calculation task
+This module demonstrates how the agent handles mathematical tasks
+and time-based calculations, showcasing tool usage and result
+interpretation.
 """
 
 from tools import call_tool, get_vector_memory
 import json
 
 def solve_calculation_task():
+    """Demonstrate agent solving a mathematical calculation task."""
     task = "Calculate 15 * 23 and tell me what this number represents in terms of days"
     print(f"Agent Task: {task}\n")
     

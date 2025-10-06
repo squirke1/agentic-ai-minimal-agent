@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+"""Comprehensive agent workflow demonstration.
 
-"""
-Demo script showing how the agent works with all systems
-This simulates the agent flow without needing OpenAI API
+This module simulates a complete agent execution cycle including
+memory search, tool usage, and experience storage, without requiring
+external API calls.
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ from memory import Memory
 from tools import all_openai_specs, call_tool, get_vector_memory
 
 def demo_agent_workflow():
-    """Demonstrate the complete agent workflow"""
+    """Demonstrate the complete agent workflow with all systems."""
     
     print("Agentic AI Agent Demo")
     print("=" * 40)

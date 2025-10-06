@@ -1,22 +1,41 @@
+"""Tool registration and execution system for the AI agent.
+
+This module provides a registry-based system for managing agent tools
+and their execution. Tools are registered with OpenAI-compatible schemas
+and can be invoked dynamically by the agent during task execution.
+"""
+
 from __future__ import annotations
 import math, os, json, glob
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
-# ---- Tool registry ----
-
+# Global tool registry - stores all available tools for the agent
 _TOOL_REGISTRY: Dict[str, "Tool"] = {}
 
 @dataclass
 class Tool:
+    """Represents a tool that can be called by the AI agent.
+    
+    Attributes:
+        name: Unique identifier for the tool
+        description: Human-readable description of what the tool does
+        schema: JSON schema defining the tool's parameters
+        run: Callable function that executes the tool logic
+    """
     name: str
     description: str
     schema: Dict[str, Any]
     run: Any
 
     def to_openai_spec(self) -> Dict[str, Any]:
-        # For OpenAI v0.28.x, functions are passed directly without the "function" wrapper
+        """Convert tool to OpenAI function calling specification.
+        
+        Returns:
+            Dict compatible with OpenAI v0.28.x function calling format
+        """
+        # For OpenAI v0.28.x, functions are passed directly without wrapper
         return {
             "name": self.name,
             "description": self.description,
@@ -24,18 +43,39 @@ class Tool:
         }
 
 def register(tool: Tool):
+    """Register a tool in the global registry.
+    
+    Args:
+        tool: Tool instance to register
+    """
     _TOOL_REGISTRY[tool.name] = tool
 
 
 def all_openai_specs() -> List[Dict[str, Any]]:
+    """Get OpenAI function specifications for all registered tools.
+    
+    Returns:
+        List of OpenAI-compatible function specifications
+    """
     return [t.to_openai_spec() for t in _TOOL_REGISTRY.values()]
 
 
 def call_tool(name: str, arguments_json: Any) -> str:
+    """Execute a tool by name with the provided arguments.
+    
+    Args:
+        name: Name of the tool to execute
+        arguments_json: JSON string or dict containing tool arguments
+        
+    Returns:
+        JSON string containing the tool execution result or error
+    """
     if name not in _TOOL_REGISTRY:
         return json.dumps({"error": f"Unknown tool: {name}"})
+    
     tool = _TOOL_REGISTRY[name]
     try:
+        # Parse arguments from various input formats
         if isinstance(arguments_json, str):
             args = json.loads(arguments_json or "{}")
         elif arguments_json is None:
@@ -46,11 +86,15 @@ def call_tool(name: str, arguments_json: Any) -> str:
     except Exception as e:
         return json.dumps({"error": str(e)})
 
-# ---- Global memory instance ----
+# Global vector memory instance - initialized on first access
 _VECTOR_MEMORY = None
 
 def get_vector_memory():
-    """Get or create the global vector memory instance"""
+    """Get or initialize the global vector memory instance.
+    
+    Returns:
+        VectorMemory instance if available, None if dependencies missing
+    """
     global _VECTOR_MEMORY
     if _VECTOR_MEMORY is None:
         try:
@@ -68,14 +112,26 @@ def get_vector_memory():
             return None
     return _VECTOR_MEMORY
 
-# ---- Memory Management Tools ----
+# Memory Management Tools
+# These tools provide persistent storage and retrieval capabilities
 
 class StoreMemoryArgs(BaseModel):
+    """Arguments for storing information in long-term memory."""
     content: str = Field(..., description="The content to store in long-term memory")
     memory_type: str = Field("experience", description="Type: conversation, experience, fact, or skill")
     importance: float = Field(0.5, description="Importance score 0.0-1.0")
 
 def _store_memory_run(content: str, memory_type: str = "experience", importance: float = 0.5) -> str:
+    """Store content in the agent's long-term memory system.
+    
+    Args:
+        content: Text content to store
+        memory_type: Category of memory (experience, fact, skill, conversation)
+        importance: Importance weight from 0.0 to 1.0
+        
+    Returns:
+        JSON response with success status and memory details
+    """
     try:
         memory = get_vector_memory()
         if memory is None:
@@ -217,17 +273,31 @@ register(Tool(
     run=_memory_stats_run,
 ))
 
-# ---- Calculator ----
+# Mathematical Computation Tools
+# Provides safe mathematical expression evaluation
 
 class CalcArgs(BaseModel):
+    """Arguments for mathematical calculations."""
     expression: str = Field(..., description="A math expression, e.g. '2*(3+4)'.")
 
 
 def _calc_run(expression: str) -> str:
+    """Safely evaluate a mathematical expression.
+    
+    Uses Python's eval() with a restricted namespace containing only
+    mathematical functions and constants for security.
+    
+    Args:
+        expression: Mathematical expression string
+        
+    Returns:
+        JSON response with calculation result or error
+    """
     try:
-        # safe eval using math namespace only
+        # Create safe evaluation environment with math functions only
         allowed = {k: getattr(math, k) for k in dir(math) if not k.startswith("_")}
         allowed.update({"__builtins__": {}})
+        
         result = eval(expression, allowed, {})
         return json.dumps({"ok": True, "expression": expression, "result": result})
     except Exception as e:
@@ -246,31 +316,51 @@ register(Tool(
     run=_calc_run,
 ))
 
-# ---- Retrieve (RAG-lite over ./docs) ----
+# Document Retrieval Tools
+# Provides RAG-like functionality over local documentation
 
 class RetrieveArgs(BaseModel):
+    """Arguments for document retrieval."""
     query: str = Field(..., description="What to search for in local docs.")
     k: int = Field(3, description="How many chunks to return.")
 
 
 def _retrieve_run(query: str, k: int = 3) -> str:
-    # naive full-text search over ./docs/*.md
+    """Search local documentation files for relevant content.
+    
+    Performs simple full-text search over Markdown files in the ./docs
+    directory and returns the most relevant snippets.
+    
+    Args:
+        query: Search query string
+        k: Maximum number of results to return
+        
+    Returns:
+        JSON response with matching document snippets
+    """
+    # Load all Markdown files from docs directory
     docs = []
     for path in glob.glob("docs/*.md"):
         with open(path, "r", encoding="utf-8") as f:
             text = f.read()
             docs.append((path, text))
+    
+    # Perform simple keyword matching
     query_l = query.lower()
     scored = []
     for path, text in docs:
+        # Score by frequency of query terms in document
         score = text.lower().count(query_l)
         if score:
             scored.append((score, path, text))
+    
+    # Sort by relevance and return top k results
     scored.sort(reverse=True)
     results = []
     for _, path, text in scored[:k]:
-        snippet = text[:800]
+        snippet = text[:800]  # Return first 800 characters
         results.append({"path": path, "snippet": snippet})
+    
     return json.dumps({"query": query, "hits": results})
 
 register(Tool(
@@ -287,19 +377,31 @@ register(Tool(
     run=_retrieve_run,
 ))
 
-# ---- Web search (stub) ----
+# Web Search Tools
+# Extensible web search functionality (currently stubbed)
 
 class WebArgs(BaseModel):
+    """Arguments for web search queries."""
     query: str = Field(..., description="Web search query.")
 
 
 def _web_search_run(query: str) -> str:
-    # Stub that returns a static response; replace with a real API as needed.
+    """Perform web search (currently returns a placeholder).
+    
+    This is a stub implementation that can be extended to integrate
+    with real search APIs like SerpAPI, Tavily, or Bing Search.
+    
+    Args:
+        query: Search query string
+        
+    Returns:
+        JSON response with search results (currently placeholder)
+    """
+    # Placeholder implementation - replace with actual search API
     return json.dumps({
         "query": query,
-        "results": [
-            {"title": "How to integrate web search", "url": "https://example.com/search-guide", "snippet": "Replace the stub with your API."}
-        ]
+        "message": "Web search not implemented. Wire this to SerpAPI, Tavily, etc.",
+        "results": []
     })
 
 register(Tool(

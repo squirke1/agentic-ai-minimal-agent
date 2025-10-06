@@ -1,3 +1,10 @@
+"""Long-term memory system using vector embeddings and ChromaDB.
+
+This module provides persistent memory capabilities for the AI agent,
+allowing it to store and retrieve experiences across sessions using
+semantic similarity search.
+"""
+
 from __future__ import annotations
 import json
 import uuid
@@ -49,7 +56,12 @@ class Memory:
     importance: float = 0.5  # 0-1 scale
 
 class VectorMemory:
-    """Long-term memory using vector embeddings for similarity search"""
+    """Long-term memory system using vector embeddings for semantic search.
+    
+    This class provides persistent storage and retrieval of agent experiences
+    using ChromaDB for vector storage and similarity search. Memories are
+    embedded as vectors and can be retrieved based on semantic similarity.
+    """
     
     def __init__(self, persist_directory: str = "./memory_db"):
         if not CHROMADB_AVAILABLE:

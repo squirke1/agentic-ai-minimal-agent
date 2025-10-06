@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+"""Test suite for agent components without API dependencies.
 
-"""
-Test script for the agent without needing a real OpenAI API key
+This module provides comprehensive testing of the agent's tools,
+memory systems, and core functionality without requiring external
+API calls or network connectivity.
 """
 
 from __future__ import annotations
@@ -11,7 +13,11 @@ from memory import Memory
 from tools import all_openai_specs, call_tool, get_vector_memory
 
 def mock_run_agent(task: str):
-    """Test the agent without making API calls"""
+    """Test agent functionality without making API calls.
+    
+    Args:
+        task: The task description to test with
+    """
     load_dotenv()
     
     print(f"Testing agent with task: {task}")
