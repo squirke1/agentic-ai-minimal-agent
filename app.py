@@ -26,79 +26,18 @@ st.set_page_config(
     layout="wide"
 )
 
-# Add custom CSS for better visibility and modern design
-st.markdown("""
-<style>
-    /* Main app styling */
-    .main .block-container {
-        padding-top: 2rem;
-        max-width: 1200px;
-    }
-    
-    /* Header styling */
-    .main-header {
-        font-size: 2.5rem;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 1rem;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    }
-    
-    /* Status panel styling */
-    .status-panel {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 10px;
-        border: 1px solid #dee2e6;
-        margin-bottom: 1rem;
-    }
-    
-    /* Form styling */
-    .stTextInput > div > div > input {
-        background-color: white;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 0.75rem;
-        font-size: 1rem;
-    }
-    
-    .stTextInput > div > div > input:focus {
-        border-color: #2196f3;
-        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
-    }
-    
-    /* Button styling */
-    .stButton > button {
-        background-color: #2196f3;
-        color: white;
-        border-radius: 10px;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .stButton > button:hover {
-        background-color: #1976d2;
-        box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
-    }
-    
-    /* Sidebar styling */
-    .css-1d391kg {
-        background-color: #f8f9fa;
-    }
-    
-    /* Chat area styling */
-    .chat-container {
-        max-height: 600px;
-        overflow-y: auto;
-        padding: 1rem;
-        background-color: #fafafa;
-        border-radius: 10px;
-        border: 1px solid #e0e0e0;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Load custom CSS from external file
+def load_css():
+    """Load custom CSS from external file for better maintainability"""
+    try:
+        with open('static/style.css', 'r') as f:
+            css_content = f.read()
+        st.markdown(f'<style>{css_content}</style>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.warning("⚠️ CSS file not found. Using default styling.")
+
+# Apply custom styling
+load_css()
 
 # Initialize session state for chat history
 # Session state persists data between user interactions
