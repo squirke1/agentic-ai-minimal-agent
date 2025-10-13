@@ -184,6 +184,9 @@ def run_agent(task: str):
                 print("\n[Memory] Stored incomplete attempt in long-term memory")
             except Exception as e:
                 print(f"\n[Memory] Failed to store incomplete attempt: {e}")
+    
+    # Return the final answer or a default message if none was generated
+    return final_answer or "I wasn't able to complete that request. Please try rephrasing or check the system status."
 
 
 if __name__ == "__main__":
