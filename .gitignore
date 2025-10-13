@@ -208,7 +208,7 @@ __marimo__/
 
 # Project-specific
 # ChromaDB database files (keep structure but exclude data)
-memory_db/
+memory_db/*
 !memory_db/.gitkeep
 
 # Mac OS
